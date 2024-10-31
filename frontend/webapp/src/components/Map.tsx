@@ -14,6 +14,28 @@ interface MapProps {
   routes: ManageableRoute[]
 }
 
+const colors = [
+  'blue',
+  'red',
+  'green',
+  'purple',
+  'orange',
+  'yellow',
+  'cyan',
+  'magenta',
+  'lime',
+  'teal',
+  'pink',
+  'brown',
+  'navy',
+  'olive',
+  'maroon',
+  'aqua',
+  'gold',
+  'coral',
+  'indigo'
+]
+
 const Map: React.FC<MapProps> = ({ routes }) => {
   const data = useData()
   const position: LatLngExpression = [48.1351, 11.582] // Center on Munich
@@ -25,28 +47,6 @@ const Map: React.FC<MapProps> = ({ routes }) => {
     {}
   )
   const [dotPosition, setDotPosition] = useState<{ [key: string]: number }>({})
-
-  const colors = [
-    'blue',
-    'red',
-    'green',
-    'purple',
-    'orange',
-    'yellow',
-    'cyan',
-    'magenta',
-    'lime',
-    'teal',
-    'pink',
-    'brown',
-    'navy',
-    'olive',
-    'maroon',
-    'aqua',
-    'gold',
-    'coral',
-    'indigo'
-  ]
 
   useEffect(() => {
     const colorMap: { [key: string]: string } = {}
