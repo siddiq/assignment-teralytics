@@ -2,11 +2,6 @@
 PYTHONPATH=.
 CSV_FILE=../files/inventory.csv
 
-
-# Initialize the Database with CSV
-init_db:
-	echo NOT_IMPL
-
 # Bring up Docker Compose
 docker_up:
 	docker-compose up -d
@@ -21,4 +16,3 @@ docker_rebuild:
 
 # Run all (run Docker and then FastAPI server)
 run_all: docker_up run
-
