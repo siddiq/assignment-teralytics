@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { MapContainer, TileLayer, Polyline } from 'react-leaflet'
+import {
+  MapContainer,
+  TileLayer,
+  Polyline,
+  CircleMarker,
+  Tooltip
+} from 'react-leaflet'
 import { LatLngExpression } from 'leaflet'
 import { useData } from '../DataProvider'
 import { ManageableRoute, TripEvent } from '../types'
@@ -18,36 +24,36 @@ const Map: React.FC<MapProps> = ({ routes }) => {
   const [routeColorMap, setRouteColorMap] = useState<{ [key: string]: string }>(
     {}
   )
+  const [dotPosition, setDotPosition] = useState<{ [key: string]: number }>({})
+
+  const colors = [
+    'blue',
+    'red',
+    'green',
+    'purple',
+    'orange',
+    'yellow',
+    'cyan',
+    'magenta',
+    'lime',
+    'teal',
+    'pink',
+    'brown',
+    'navy',
+    'olive',
+    'maroon',
+    'aqua',
+    'gold',
+    'coral',
+    'indigo'
+  ]
 
   useEffect(() => {
-    const colors = [
-      'blue',
-      'red',
-      'green',
-      'purple',
-      'orange',
-      'yellow',
-      'cyan',
-      'magenta',
-      'lime',
-      'teal',
-      'pink',
-      'brown',
-      'navy',
-      'olive',
-      'maroon',
-      'aqua',
-      'gold',
-      'coral',
-      'indigo'
-    ]
-
-    // Initialize color map for each unique route only once
     const colorMap: { [key: string]: string } = {}
     routes.forEach((route, index) => {
       const { route_short_name: routeName } = route
       if (!colorMap[routeName]) {
-        colorMap[routeName] = colors[index % colors.length] // Cycle colors if more routes than colors
+        colorMap[routeName] = colors[index % colors.length]
       }
     })
     setRouteColorMap(colorMap)
@@ -84,8 +90,35 @@ const Map: React.FC<MapProps> = ({ routes }) => {
       })
 
       setRouteCoordinates(newRouteCoordinates)
+
+      // Initialize dot positions at the first stop of each route
+      const initialDotPositions: { [key: string]: number } = {}
+      Object.keys(newRouteCoordinates).forEach((route) => {
+        initialDotPositions[route] = 0
+      })
+      setDotPosition(initialDotPositions)
     }
   }, [data, routes])
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setDotPosition((prevPositions) => {
+        const newPositions = { ...prevPositions }
+
+        Object.keys(newPositions).forEach((route) => {
+          const routeCoords = routeCoordinates[route]
+          if (routeCoords) {
+            newPositions[route] =
+              (prevPositions[route] + 1) % routeCoords.length
+          }
+        })
+
+        return newPositions
+      })
+    }, 2000)
+
+    return () => clearInterval(intervalId)
+  }, [routeCoordinates])
 
   return (
     <MapContainer
@@ -100,15 +133,38 @@ const Map: React.FC<MapProps> = ({ routes }) => {
       />
       {routes.map((route, index) => {
         const { route_short_name: routeName } = route
-        console.log(routeName, routeColorMap[routeName] || 'black')
+        const routeColor = routeColorMap[routeName] || 'black'
+        const routeCoords = routeCoordinates[routeName]
 
-        return routeCoordinates[routeName] ? (
-          <Polyline
-            key={index}
-            positions={routeCoordinates[routeName]}
-            color={routeColorMap[routeName] || 'black'}
-          />
-        ) : null
+        return (
+          <React.Fragment key={index}>
+            {routeCoords && (
+              <Polyline positions={routeCoords} color={routeColor} />
+            )}
+            {routeCoords && routeCoords[dotPosition[routeName]] && (
+              <CircleMarker
+                center={routeCoords[dotPosition[routeName]]}
+                radius={6}
+                color={routeColor}
+                fillColor={routeColor}
+                fillOpacity={1}
+              >
+                <Tooltip>
+                  {`Load: ${
+                    data.find(
+                      (event) =>
+                        event.route_short_name === routeName &&
+                        event.stop_lat ===
+                          routeCoords[dotPosition[routeName]][0] &&
+                        event.stop_lon ===
+                          routeCoords[dotPosition[routeName]][1]
+                    )?.load || 0
+                  }`}
+                </Tooltip>
+              </CircleMarker>
+            )}
+          </React.Fragment>
+        )
       })}
     </MapContainer>
   )
