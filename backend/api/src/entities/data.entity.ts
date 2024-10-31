@@ -12,7 +12,7 @@ export class RouteData {
   route_id: string;
 
   @Column()
-  trip_id: string; // Use string type for trip_id
+  trip_id: string;
 
   @Column()
   stop_id: string;

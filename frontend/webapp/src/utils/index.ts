@@ -1,4 +1,4 @@
-import { RouteStopCount, TripEvent } from '../types/TripEvent'
+import { RouteStopCount, TripEvent } from '../types'
 
 // Function to extract routes and their stop counts
 const extractRoutesAndStopCounts = (data: TripEvent[]): RouteStopCount[] => {

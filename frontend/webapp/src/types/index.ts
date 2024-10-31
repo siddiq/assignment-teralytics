@@ -17,3 +17,9 @@ export interface RouteStopCount {
   route_short_name: string
   stop_count: number
 }
+
+export interface ManageableRoute {
+  route_short_name: string
+  stop_count: number
+  visible: boolean
+}

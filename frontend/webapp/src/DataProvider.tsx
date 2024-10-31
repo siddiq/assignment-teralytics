@@ -5,34 +5,32 @@ import React, {
   ReactNode,
   useContext
 } from 'react'
-import { RouteStopCount } from './types/TripEvent'
-import { extractRoutesAndStopCounts } from './utils'
+import { TripEvent } from './types'
 
-// Define context and type for data
-const DataContext = createContext<RouteStopCount[] | undefined>(undefined)
+const API_ENDPOINT =
+  process.env.REACT_APP_API_ENDPOINT || 'http://localhost:3000/api/v1/tripdata'
 
-// Custom hook to use data in child components
+const DataContext = createContext<TripEvent[] | null>(null)
+
 export const useData = () => {
   const context = useContext(DataContext)
-  if (context === undefined) {
+  if (context === null) {
     throw new Error('useData must be used within a DataProvider')
   }
   return context
 }
 
-// Define the DataProvider component
 export const DataProvider: React.FC<{ children: ReactNode }> = ({
   children
 }) => {
-  const [data, setData] = useState<RouteStopCount[]>([])
+  const [data, setData] = useState<TripEvent[] | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/v1/tripdata')
+        const response = await fetch(API_ENDPOINT)
         const rawData = await response.json()
-        const processedData = extractRoutesAndStopCounts(rawData) // Process data
-        setData(processedData)
+        setData(rawData)
       } catch (error) {
         console.error('Error fetching data:', error)
       }
@@ -40,5 +38,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({
     fetchData()
   }, [])
 
-  return <DataContext.Provider value={data}>{children}</DataContext.Provider>
+  return (
+    <DataContext.Provider value={data}>
+      {data ? children : <div>Loading...</div>}
+    </DataContext.Provider>
+  )
 }

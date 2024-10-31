@@ -10,8 +10,13 @@ export class TripdataService {
     private routeDataRepository: Repository<RouteData>,
   ) {}
 
-  // Fetch all TripData records from the database
   async getAllTrips(): Promise<RouteData[]> {
-    return this.routeDataRepository.find();
+    return this.routeDataRepository.find({
+      order: {
+        route_id: 'ASC',
+        trip_id: 'ASC',
+        stop_sequence: 'ASC',
+      },
+    });
   }
 }
