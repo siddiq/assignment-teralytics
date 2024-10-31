@@ -1,23 +1,24 @@
-// src/Map.tsx
 import React from 'react'
-import { useData } from '../DataProvider'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { LatLngExpression } from 'leaflet'
 
 const Map: React.FC = () => {
-  const data = useData() // Access data from context
+  const position: LatLngExpression = [48.1351, 11.582] // Munich, Germany
 
   return (
-    <div
-      style={{
-        width: '600px',
-        height: '400px',
-        backgroundColor: '#e0e0e0',
-        margin: '20px auto'
-      }}
+    <MapContainer
+      center={position}
+      zoom={13}
+      style={{ width: '100%', height: '100%' }}
     >
-      <h3>Map Placeholder</h3>
-      <p>Data from Context:</p>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </div>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+      <Marker position={position}>
+        <Popup>Default Location</Popup>
+      </Marker>
+    </MapContainer>
   )
 }
 
